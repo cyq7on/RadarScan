@@ -11,8 +11,7 @@
         android:id="@+id/radar"
         android:layout_width="280dp"
         android:layout_height="280dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp">
+        android:layout_centerInParent="true">
 
         <mr_immortalz.com.modelqq.custom.RadarView
             android:id="@id/id_scan_circle"
@@ -21,6 +20,7 @@
     </mr_immortalz.com.modelqq.custom.RadarViewGroup>
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/ry_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,6 +37,11 @@
             android:layout_marginRight="120dp"
             />
     </RelativeLayout>
+
+    <Button
+        android:onClick="onClick"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 
 </RelativeLayout>

@@ -6,6 +6,9 @@ package mr_immortalz.com.modelqq.been;
  */
 public class Info {
     private int portraitId;//头像id
+    public int id;//id
+    public double lat;
+    public double lon;
     private String name;//名字
     private String age;//年龄
     private boolean sex;//false为男，true为女

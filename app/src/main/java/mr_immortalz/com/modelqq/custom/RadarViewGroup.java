@@ -80,39 +80,45 @@ public class RadarViewGroup extends ViewGroup implements RadarView.IScanningList
             final View child = getChildAt(i);
             if (child.getId() == R.id.id_scan_circle) {
                 //如果不是Circleview跳过
-                continue;
-            }
-            //设置CircleView小圆点的坐标信息
-            //坐标 = 旋转角度 * 半径 * 根据远近距离的不同计算得到的应该占的半径比例
-            ((CircleView) child).setDisX((float) Math.cos(Math.toRadians(scanAngleList.get(i - 1) - 5))
-                    * ((CircleView) child).getProportion() * mWidth / 2);
-            ((CircleView) child).setDisY((float) Math.sin(Math.toRadians(scanAngleList.get(i - 1) - 5))
-                    * ((CircleView) child).getProportion() * mWidth / 2);
-            //如果扫描角度记录SparseArray中的对应的item的值为0，
-            // 说明还没有扫描到该item，跳过对该item的layout
-            //（scanAngleList设置数据时全部设置的value=0，
-            // 当onScanning时，value设置的值始终不会0，具体可以看onScanning中的实现）
-            if (scanAngleList.get(i - 1) == 0) {
-                continue;
-            }
-            //放置Circle小圆点
-            child.layout((int) ((CircleView) child).getDisX() + mWidth / 2, (int) ((CircleView) child).getDisY() + mHeight / 2,
-                    (int) ((CircleView) child).getDisX() + child.getMeasuredWidth() + mWidth / 2,
-                    (int) ((CircleView) child).getDisY() + child.getMeasuredHeight() + mHeight / 2);
-            //设置点击事件
-            child.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    resetAnim(currentShowChild);
-                    currentShowChild = (CircleView) child;
-                    //因为雷达图是childAt(0),所以这里需要作-1才是正确的Circle
-                    startAnim(currentShowChild, j - 1);
-                    if (iRadarClickListener != null) {
-                        iRadarClickListener.onRadarItemClick(j - 1);
+//                continue;
+                ((RadarView) child).startScan();
 
-                    }
+            }
+            if (child instanceof CircleView) {
+                //如果不是Circleview跳过
+                //设置CircleView小圆点的坐标信息
+                //坐标 = 旋转角度 * 半径 * 根据远近距离的不同计算得到的应该占的半径比例
+                ((CircleView) child).setDisX((float) Math.cos(Math.toRadians(scanAngleList.get(i - 1) - 5))
+                        * ((CircleView) child).getProportion() * mWidth / 2);
+                ((CircleView) child).setDisY((float) Math.sin(Math.toRadians(scanAngleList.get(i - 1) - 5))
+                        * ((CircleView) child).getProportion() * mWidth / 2);
+                //如果扫描角度记录SparseArray中的对应的item的值为0，
+                // 说明还没有扫描到该item，跳过对该item的layout
+                //（scanAngleList设置数据时全部设置的value=0，
+                // 当onScanning时，value设置的值始终不会0，具体可以看onScanning中的实现）
+                if (scanAngleList.get(i - 1) == 0) {
+//                    continue;
                 }
-            });
+                //放置Circle小圆点
+                child.layout((int) ((CircleView) child).getDisX() + mWidth / 2, (int) ((CircleView) child).getDisY() + mHeight / 2,
+                        (int) ((CircleView) child).getDisX() + child.getMeasuredWidth() + mWidth / 2,
+                        (int) ((CircleView) child).getDisY() + child.getMeasuredHeight() + mHeight / 2);
+                //设置点击事件
+                child.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        resetAnim(currentShowChild);
+                        currentShowChild = (CircleView) child;
+                        //因为雷达图是childAt(0),所以这里需要作-1才是正确的Circle
+                        startAnim(currentShowChild, j - 1);
+                        if (iRadarClickListener != null) {
+                            iRadarClickListener.onRadarItemClick(j - 1);
+
+                        }
+                    }
+                });
+            }
+
         }
 
 
@@ -159,17 +165,32 @@ public class RadarViewGroup extends ViewGroup implements RadarView.IScanningList
         //根据数据源信息动态添加CircleView
         for (int i = 0; i < dataLength; i++) {
             CircleView circleView = new CircleView(getContext());
-            if (mDatas.get(i).getSex()) {
+            circleView.setPaintColor(getResources().getColor(R.color.bg_color_pink));
+            /*if (mDatas.get(i).getSex()) {
                 circleView.setPaintColor(getResources().getColor(R.color.bg_color_pink));
             } else {
                 circleView.setPaintColor(getResources().getColor(R.color.bg_color_blue));
-            }
+            }*/
             //根据远近距离的不同计算得到的应该占的半径比例 0.312-0.832
             circleView.setProportion((mDatas.get(i).getDistance() / max + 0.6f) * 0.52f);
-            if (minItemPosition == i) {
+            /*if (minItemPosition == i) {
                 minShowChild = circleView;
-            }
+            }*/
+            circleView.setTag(mDatas.get(i).id);
             addView(circleView);
+        }
+    }
+
+    public void removeCircleView(int id) {
+        int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View childAt = getChildAt(i);
+            if(childAt instanceof  CircleView){
+                CircleView circleView = (CircleView) childAt;
+                if((int)circleView.getTag() == id){
+                    removeView(circleView);
+                }
+            }
         }
     }
 
